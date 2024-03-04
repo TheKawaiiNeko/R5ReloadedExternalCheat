@@ -53,9 +53,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // Create threads
     g.Run = true;
+     std::thread([&]() { Ct.AimBot(); }).detach();
     std::thread([&]() { Ov.OverlayManager(); }).detach();
-    std::thread([&]() { Ct.AimBot(); }).detach();
-
+   
     // MainLoop
     Ov.OverlayLoop();
     
@@ -64,85 +64,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     return 0;
 }
-
-/*
-// KeyBinder
-void KeyBinder()
-{
-    while (Run)
-    {
-        // KeyBinder
-        while (g.KeyBind)
-        {
-            while (true)
-            {
-                g.BindFlag = true;
-
-                for (int i = 0; i < 0x87; i++)
-                {
-                    if (IsKeyDown(i))
-                    {
-                        // Escape - 割り当て解除
-                        if (i == 27 || i == 35)
-                        {
-                            switch (g.BindID)
-                            {
-                            case 1:
-                                g.AimKey0 = 0;
-                                break;
-                            case 2:
-                                g.AimKey1 = 0;
-                                break;
-                            case 3:
-                                g.FakeDuckKey = 0;
-                                break;
-                            default:
-                                break;
-                            }
-
-                            g.BindID = 0;
-                            g.BindFlag = false;
-                            g.KeyBind = false;
-                            break;
-                        }
-                        else
-                        {
-                            if (g.FakeDuckKey == 1 || g.FakeDuckKey == 2)
-                                g.FakeDuckKey = 0;
-
-                            switch (g.BindID)
-                            {
-                            case 1:
-                                g.AimKey0 = i;
-                                break;
-                            case 2:
-                                g.AimKey1 = i;
-                                break;
-                            case 3:
-                                g.FakeDuckKey = i;
-                                break;
-                            default:
-                                break;
-                            }
-
-                            g.BindID = 0;
-                            g.BindFlag = false;
-                            g.KeyBind = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (!g.BindFlag)
-                    break;
-            }
-        }
-
-        // Key Check
-        if (g.AimKey0 == g.AimKey1)
-            g.AimKey1 = 0;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-}
-*/
