@@ -29,3 +29,9 @@
 
 ## Image
 ![image](https://github.com/TheKawaiiNeko/R5ReloadedExternalCheat/assets/159750768/f4daf7d5-2d46-4c26-b7e7-52805ee63819)
+
+Credit :
+* https://github.com/MisterY52/apex_dma_kvm_pub
+* https://github.com/metayeti/mINI
+* https://github.com/ocornut/imgui
+* some unknowncheats member (IDK)
