@@ -28,7 +28,14 @@ public:
     void Misc();
 
     // EntityList
-    void UpdateList(std::vector<uint64_t>& list);
+    struct EntBox
+    {
+        uint64_t ptr;
+        std::string name;
+    };
+
+    void UpdateList();
+    std::vector<EntBox> newlist;
     std::vector<uint64_t> entitylist;
 private:
     void KeyBinder(int &target_key);

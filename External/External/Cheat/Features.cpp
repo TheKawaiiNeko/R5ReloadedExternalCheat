@@ -5,11 +5,11 @@ int AimBone = 3;
 float vAInfo[15000];
 
 // Update EntityList - 有効なポインタ・エンティティのみを格納
-void Cheat::UpdateList(std::vector<uint64_t>& list)
+void Cheat::UpdateList()
 {
 	while (cfg.Run)
 	{
-		std::vector<uint64_t> temp_list;
+		std::vector<EntBox> temp_list;
         this->ViewModelList.clear();
 		uint64_t local = m.Read<uint64_t>(m.BaseAddress + offset::dwLocalPlayer);
 
@@ -20,21 +20,32 @@ void Cheat::UpdateList(std::vector<uint64_t>& list)
 			if (entity == NULL || entity == local)
 				continue;
 
-			// Check
-			char pName[16];
-			get_class_name(entity, pName);
-            std::string ClsName = pName;
+            EntBox temp;
 
-            if (ClsName.find("CPlayer") != std::string::basic_string::npos || ClsName.find("CAI_Base") != std::string::basic_string::npos || ClsName.find("CBaseGre") != std::string::basic_string::npos)
-                temp_list.push_back(entity);
-            else if (ClsName.find("CBaseVie") != std::string::basic_string::npos)
+			// Check
+			char pName[64];
+            uint64_t client_networkable_vtable = m.Read<uint64_t>(entity + 8 * 3);
+            uint64_t get_client_class = m.Read<uint64_t>(client_networkable_vtable + 8 * 3);
+            uint32_t disp = m.Read<uint32_t>(get_client_class + 3);
+            const uint64_t client_class_ptr = get_client_class + disp + 7;
+            ClientClass client_class = m.Read<ClientClass>(client_class_ptr);
+            ReadProcessMemory(m.pHandle, (void*)(client_class.pNetworkName), pName, sizeof(pName), nullptr);
+
+            if (strcmp(pName, "CPlayer") == 0 || strcmp(pName, "CAI_BaseNPC") == 0 || strcmp(pName, "CBaseGrenade") == 0)
+            {
+                temp.ptr  = entity;
+                temp.name = pName;
+                temp_list.push_back(temp);
+            }
+                
+            else if (strcmp(pName, "CBaseViewModel") == 0)
                 ViewModelList.push_back(entity);
-			else
-				continue;
+
+            ZeroMemory(pName, sizeof(pName));
 		}
 
-		list = temp_list;
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		this->newlist = temp_list;
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 	}
 }
 
@@ -111,18 +122,15 @@ void Cheat::AimBot()
         uint64_t tmpvmx = m.Read<uint64_t>(ViewRenderer + offset::ViewMatrix);
         Matrix ViewMatrix = m.Read<Matrix>(tmpvmx);
 
-        for (int i = 0; i < entitylist.size(); i++)
+        for (int i = 0; i < newlist.size(); i++)
         {
             // Main
-            char cls_name[256];
-            get_class_name(entitylist[i], cls_name);
-            ent.ptr = entitylist[i];
+            ent.ptr = newlist[i].ptr;
             pEntity->Update();
-            std::string ClassName = cls_name;
 
-            if (ClassName.find("CPlayer") != std::string::basic_string::npos || ClassName.find("CAI_Base") != std::string::basic_string::npos)
+            if (newlist[i].name == "CPlayer" || newlist[i].name == "CAI_BaseNPC")
             {
-                if (!cfg.DummyESP && ClassName.find("CAI_Base") != std::string::basic_string::npos)
+                if (!cfg.DummyESP && newlist[i].name == "CAI_BaseNPC")
                     continue;
                 else if (!pEntity->IsAlive())
                     continue;
@@ -148,7 +156,8 @@ void Cheat::AimBot()
                         // Get BonePosition
                         Vector3 BonePosition = GetEntityBonePosition(pEntity->ptr, i, pEntity->Position);
 
-                        if (BonePosition == Vector3(0.f, 0.f, 0.f))
+                        float B2Bdistance = ((pEntity->Position - BonePosition).Length() * 0.01905f);
+                        if (BonePosition == Vector3(0.f, 0.f, 0.f) || BonePosition == pEntity->Position || B2Bdistance > 2.f)
                             continue;
 
                         // W2S
@@ -161,6 +170,7 @@ void Cheat::AimBot()
                         // AimFovの内側に敵がいるか - いたらループを終了、Angleに書き込む
                         if (fov < cfg.AimFov)
                         {
+                            // ...
                             switch (cfg.AimType)
                             {
                             case 0: // Crosshair

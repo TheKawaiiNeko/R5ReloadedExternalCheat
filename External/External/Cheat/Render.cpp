@@ -459,7 +459,7 @@ void Cheat::RenderESP()
     uint64_t tmpvmx = m.Read<uint64_t>(ViewRenderer + offset::ViewMatrix);
     Matrix ViewMatrix = m.Read<Matrix>(tmpvmx);
 
-    for (int i = 0; i < entitylist.size(); i++)
+    for (int i = 0; i < newlist.size(); i++)
     {
         // LocalCheck
         if (!pLocal->IsAlive())
@@ -469,15 +469,12 @@ void Cheat::RenderESP()
         }
 
         // Main
-        char cls_name[256];
-        get_class_name(entitylist[i], cls_name);
-        ent.ptr = entitylist[i];
+        ent.ptr = newlist[i].ptr;
         pEntity->Update();
-        std::string ClassName = cls_name;
 
-        if (ClassName.find("CPlayer") != std::string::basic_string::npos || ClassName.find("CAI_Base") != std::string::basic_string::npos)
+        if (newlist[i].name == "CPlayer" || newlist[i].name == "CAI_BaseNPC")
         {
-            if (!cfg.DummyESP && ClassName.find("CAI_Base") != std::string::basic_string::npos)
+            if (!cfg.DummyESP && newlist[i].name == "CAI_BaseNPC")
                 continue;
             else if (!pEntity->IsAlive())
                 continue;
@@ -598,7 +595,7 @@ void Cheat::RenderESP()
                 }
             }
         }
-        else if (cfg.GrenadeESP && ClassName.find("CBaseGre") != std::string::basic_string::npos)
+        else if (cfg.GrenadeESP && newlist[i].name == "CBaseGrenade")
         {
             ImGui::PushFont(Medium);
 
