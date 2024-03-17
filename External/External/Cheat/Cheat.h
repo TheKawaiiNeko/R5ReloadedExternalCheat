@@ -5,8 +5,8 @@
 #include "..\Utils\Config\Config.h"
 #include <vector>
 
-// Render.cpp   -> ƒŒƒ“ƒ_ƒŠƒ“ƒO‚ðs‚¤ˆ—
-// Features.cpp -> ƒŒƒ“ƒ_ƒŠƒ“ƒO‚ðs‚í‚È‚¢ˆ— 
+// Render.cpp   -> ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã‚’è¡Œã†å‡¦ç†
+// Features.cpp -> ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ã‚’è¡Œã‚ãªã„å‡¦ç† 
 
 class Cheat
 {
@@ -36,7 +36,6 @@ public:
 
     void UpdateList();
     std::vector<EntBox> newlist;
-    std::vector<uint64_t> entitylist;
 private:
     void KeyBinder(int &target_key);
     std::vector<uint64_t> ViewModelList;
